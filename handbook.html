@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulhandbuch</title>
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* Spezielles Layout nur für diese Seite */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Kein Scrollen am Body, nur im PDF */
+            display: flex;
+            flex-direction: column;
+            background-color: #525659; /* Dunkler Hintergrund wie in PDF-Readern */
+        }
+
+        .nav-header {
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10; /* Damit der Header über dem PDF schwebt */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        iframe {
+            flex: 1; /* Nimmt den restlichen Platz ein */
+            width: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-header">
+        <h2>📘 Modulhandbuch</h2>
+        <button onclick="window.location.href='index.html'">⬅ Zurück zur Übersicht</button>
+    </div>
+
+    <iframe src="BaI_PO2017.pdf">
+        <p>Dein Browser kann das PDF nicht direkt anzeigen. 
+        <a href="BaI_PO2017.pdf">Klicke hier zum Herunterladen.</a></p>
+    </iframe>
+
+</body>
+</html>
