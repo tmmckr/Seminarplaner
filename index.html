@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Uni-Planer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎓 Uni-Planer</h1>
+
+        <section class="card">
+            <h2>📅 Klausuren & Prüfungen</h2>
+            <div class="input-group">
+                <input type="text" id="examSubject" placeholder="Fach (z.B. Mathe II)">
+                <select id="examType">
+                    <option value="Klausur">Klausur</option>
+                    <option value="Mündlich">Mündlich</option>
+                    <option value="Präsentation">Präsentation</option>
+                </select>
+                <input type="date" id="examDate">
+                <button onclick="addExam()">Hinzufügen</button>
+            </div>
+            <ul id="examList" class="list"></ul>
+        </section>
+
+        <section class="card">
+            <h2>✅ To-Dos & Deadlines</h2>
+            <div class="input-group">
+                <input type="text" id="todoTask" placeholder="Aufgabe (z.B. Echtzeitdatenverarbeitung)">
+                <input type="text" id="todoNote" placeholder="Notiz (z.B. nur noch Fazit schreiben)">
+                <input type="date" id="todoDate">
+                <button onclick="addTodo()">Hinzufügen</button>
+            </div>
+            <ul id="todoList" class="list"></ul>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
