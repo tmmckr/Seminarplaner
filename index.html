@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein Uni-Planer</title>
+    <title>Uni-Planer (Firebase)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
-        <h1>🎓 Uni-Planer</h1>
+        <h1>🎓 Uni-Planer Cloud</h1>
 
         <section class="card">
             <h2>📅 Klausuren & Prüfungen</h2>
@@ -21,7 +21,7 @@
                     <option value="Präsentation">Präsentation</option>
                 </select>
                 <input type="date" id="examDate">
-                <button onclick="addExam()">Hinzufügen</button>
+                <button id="addExamBtn">Hinzufügen</button>
             </div>
             <ul id="examList" class="list"></ul>
         </section>
@@ -32,12 +32,12 @@
                 <input type="text" id="todoTask" placeholder="Aufgabe (z.B. Echtzeitdatenverarbeitung)">
                 <input type="text" id="todoNote" placeholder="Notiz (z.B. nur noch Fazit schreiben)">
                 <input type="date" id="todoDate">
-                <button onclick="addTodo()">Hinzufügen</button>
+                <button id="addTodoBtn">Hinzufügen</button>
             </div>
             <ul id="todoList" class="list"></ul>
         </section>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
