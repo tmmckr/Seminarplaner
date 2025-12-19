@@ -21,9 +21,10 @@
 <body>
 
     <div class="container">
+        
         <h1>🎓 Uni-Planer Cloud</h1>
-        div class="nav-buttons">
-            
+
+        <div class="nav-buttons">
             <button class="nav-btn" onclick="window.open('https://ecampus.hs-emden-leer.de/qisserver/pages/cs/sys/portal/hisinoneStartPage.faces', '_blank')">
                 🔑 Prüfungsanmeldung
             </button>
@@ -31,7 +32,6 @@
             <button class="nav-btn" onclick="window.location.href='handbook.html'">
                 📘 Modulhandbuch
             </button>
-
         </div>
 
         <section class="card">
@@ -45,7 +45,7 @@
                 </select>
                 <input type="date" id="examDate">
                 <input type="time" id="examTime">
-                <input type="text" id="examRoom" placeholder="Raum (z.B. T123)">
+                <input type="text" id="examRoom" placeholder="Raum">
                 
                 <button id="addExamBtn">Hinzufügen</button>
             </div>
@@ -55,15 +55,14 @@
         <section class="card">
             <h2>✅ To-Dos & Deadlines</h2>
             <div class="input-group">
-                <input type="text" id="todoTask" placeholder="Aufgabe (z.B. Echtzeitdatenverarbeitung)">
-                <input type="text" id="todoNote" placeholder="Notiz (z.B. nur noch Fazit schreiben)">
+                <input type="text" id="todoTask" placeholder="Aufgabe">
+                <input type="text" id="todoNote" placeholder="Notiz">
                 <input type="date" id="todoDate">
                 <button id="addTodoBtn">Hinzufügen</button>
             </div>
             <ul id="todoList" class="list"></ul>
         </section>
-    </div>
 
-    <script type="module" src="script.js"></script>
+    </div> <script type="module" src="script.js"></script>
 </body>
 </html>
