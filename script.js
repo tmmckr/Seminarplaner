@@ -37,29 +37,38 @@ document.getElementById('addExamBtn').addEventListener('click', async () => {
     const subject = document.getElementById('examSubject').value;
     const type = document.getElementById('examType').value;
     const date = document.getElementById('examDate').value;
+    // NEU: Werte holen
+    const time = document.getElementById('examTime').value;
+    const room = document.getElementById('examRoom').value;
 
-    if (!subject || !date) return alert("Bitte Fach und Datum eingeben!");
+    if (!subject || !date) return alert("Bitte mindestens Fach und Datum eingeben!");
 
     try {
         await addDoc(collection(db, "exams"), {
             subject: subject,
             type: type,
-            date: date
+            date: date,
+            time: time, // NEU: Speichern
+            room: room  // NEU: Speichern
         });
+        
         // Felder leeren
         document.getElementById('examSubject').value = '';
         document.getElementById('examDate').value = '';
+        document.getElementById('examTime').value = ''; // NEU
+        document.getElementById('examRoom').value = ''; // NEU
+        
     } catch (e) {
         console.error("Fehler beim Hinzufügen: ", e);
         alert("Fehler beim Speichern!");
     }
 });
 
-// Echtzeit-Anzeige (Automatisch sortiert)
+// Echtzeit-Anzeige
 const qExams = query(collection(db, "exams"), orderBy("date", "asc"));
 
 onSnapshot(qExams, (snapshot) => {
-    examList.innerHTML = ''; // Liste leeren
+    examList.innerHTML = ''; 
     
     snapshot.forEach((docSnap) => {
         const exam = docSnap.data();
@@ -69,15 +78,20 @@ onSnapshot(qExams, (snapshot) => {
         const dateObj = new Date(exam.date);
         const dateStr = dateObj.toLocaleDateString('de-DE');
 
+        // NEU: Logik für die Anzeige von Zeit und Raum zusammenbauen
+        // Wir prüfen, ob Zeit/Raum überhaupt eingetragen wurden, damit keine leeren Kommas entstehen.
+        let details = `Datum: ${dateStr}`;
+        if (exam.time) details += ` • 🕒 ${exam.time} Uhr`;
+        if (exam.room) details += ` • 📍 Raum: ${exam.room}`;
+
         li.innerHTML = `
             <div class="item-content">
                 <strong>${exam.subject} (${exam.type})</strong>
-                <small>Datum: ${dateStr}</small>
+                <small>${details}</small>
             </div>
             <button class="delete-btn" data-id="${docSnap.id}">Löschen</button>
         `;
         
-        // Event Listener für den Löschen-Button direkt anhängen
         li.querySelector('.delete-btn').addEventListener('click', () => deleteExam(docSnap.id));
         
         examList.appendChild(li);
