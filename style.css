@@ -1,0 +1,75 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+}
+
+h1 { text-align: center; color: #2c3e50; }
+h2 { color: #2980b9; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+input, select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover { background-color: #219150; }
+
+.list { list-style: none; padding: 0; }
+
+.list-item {
+    background: #f9f9f9;
+    border-left: 5px solid #2980b9;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.list-item.urgent { border-left-color: #e74c3c; } /* Rot für baldige Termine */
+
+.item-content strong { display: block; font-size: 1.1em; }
+.item-content small { color: #666; }
+.item-note { display: block; margin-top: 5px; font-style: italic; color: #555; }
+
+.delete-btn {
+    background-color: #e74c3c;
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.8em;
+}
