@@ -35,6 +35,50 @@
         </div>
 
         <section class="card">
+            <h2>📊 Studienfortschritt (CPs)</h2>
+            
+            <div class="cp-row">
+                <div class="cp-info">
+                    <strong>Pflichtmodule</strong>
+                    <span id="cpTextCompulsory">0 / 173 CP</span>
+                </div>
+                <div class="progress-bar"><div id="barCompulsory" style="width: 0%"></div></div>
+                <div class="cp-input-group">
+                    <input type="number" id="valCompulsory" placeholder="Aktuell">
+                    <button id="saveCpBtn">Speichern</button>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="cp-row">
+                <div class="cp-info">
+                    <strong>Wahlpflicht (WPM)</strong>
+                    <span id="cpTextElective">0 / 25 CP</span>
+                </div>
+                <div class="progress-bar"><div id="barElective" style="width: 0%"></div></div>
+                <div class="cp-input-group">
+                    <input type="number" id="valElective" placeholder="Aktuell">
+                    <button id="saveCpBtn2">Speichern</button>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="cp-row">
+                <div class="cp-info">
+                    <strong>Bachelorarbeit & Kolloquium</strong>
+                    <span id="cpTextThesis">0 / 12 CP</span>
+                </div>
+                <div class="progress-bar"><div id="barThesis" style="width: 0%"></div></div>
+                <div class="cp-input-group">
+                    <input type="number" id="valThesis" placeholder="Aktuell">
+                    <button id="saveCpBtn3">Speichern</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
             <h2>📅 Klausuren & Prüfungen</h2>
             <div class="input-group">
                 <input type="text" id="examSubject" placeholder="Fach (z.B. Mathe II)">
