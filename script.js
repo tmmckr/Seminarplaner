@@ -142,31 +142,47 @@ window.deleteItem = async (collectionName, id) => {
     }
 }
 
-// --- 5. NACHHOL-KLAUSUREN LOGIK (NEU) ---
+// --- 5. NACHHOL-KLAUSUREN LOGIK (Backlog) ---
 
-// Hinzufügen
-document.getElementById('addRetakeBtn').addEventListener('click', async () => {
-    const subject = document.getElementById('retakeSubject').value;
-    const type = document.getElementById('retakeType').value;
+const addRetakeBtn = document.getElementById('addRetakeBtn');
 
-    if (!subject) return alert("Bitte ein Fach eingeben!");
+if (addRetakeBtn) { // Sicherheitscheck: Gibt es den Button überhaupt?
+    addRetakeBtn.addEventListener('click', async () => {
+        const subject = document.getElementById('retakeSubject').value;
+        const type = document.getElementById('retakeType').value;
 
-    // Speichern in neuer Collection "retakes"
-    await addDoc(collection(db, "retakes"), { 
-        subject: subject, 
-        type: type 
+        if (!subject) return alert("Bitte ein Fach eingeben!");
+
+        try {
+            // Versuch, in die Datenbank zu schreiben
+            await addDoc(collection(db, "retakes"), { 
+                subject: subject, 
+                type: type 
+            });
+            
+            // Wenn es geklappt hat: Feld leeren
+            document.getElementById('retakeSubject').value = '';
+            console.log("Erfolgreich gespeichert!"); // Nur für die Konsole
+
+        } catch (error) {
+            // Wenn ein Fehler passiert:
+            console.error("Fehler beim Speichern:", error);
+            alert("Fehler: " + error.message); 
+            // Falls hier "permission-denied" steht, liegt es an den Regeln!
+        }
     });
-    
-    document.getElementById('retakeSubject').value = '';
-});
+} else {
+    console.error("ACHTUNG: Der Button 'addRetakeBtn' wurde im HTML nicht gefunden!");
+}
 
 // Echtzeit-Anzeige
-// Wir sortieren alphabetisch nach Fach, da es kein Datum gibt
 const qRetakes = query(collection(db, "retakes"), orderBy("subject", "asc"));
 
 onSnapshot(qRetakes, (snapshot) => {
     const list = document.getElementById('retakeList');
-    list.innerHTML = ''; // Liste leeren
+    if (!list) return; // Abbruch, falls Liste nicht im HTML ist
+
+    list.innerHTML = ''; 
 
     if (snapshot.empty) {
         list.innerHTML = '<li style="padding:10px; color:#888; font-style:italic;">Keine offenen Nachhol-Klausuren 🎉</li>';
@@ -176,9 +192,7 @@ onSnapshot(qRetakes, (snapshot) => {
     snapshot.forEach((docSnap) => {
         const item = docSnap.data();
         const li = document.createElement('li');
-        
-        // Hier nutzen wir die neue CSS-Klasse "retake" für Orange
-        li.className = 'list-item retake';
+        li.className = 'list-item retake'; // Orange Klasse
         
         li.innerHTML = `
             <div class="item-content">
@@ -189,7 +203,6 @@ onSnapshot(qRetakes, (snapshot) => {
                 Löschen
             </button>
         `;
-        
         list.appendChild(li);
     });
 });
