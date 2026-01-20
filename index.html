@@ -24,7 +24,7 @@
         
         <h1>🎓 Uni-Planer Cloud</h1>
 
-        <div class="nav-buttons">
+        <div class="nav-butns">
             <button class="nav-btn" onclick="window.open('https://ecampus.hs-emden-leer.de/qisserver/pages/cs/sys/portal/hisinoneStartPage.faces', '_blank')">
                 🔑 Prüfungsanmeldung
             </button>
@@ -105,6 +105,20 @@
                 <button id="addTodoBtn">Hinzufügen</button>
             </div>
             <ul id="todoList" class="list"></ul>
+        </section>
+
+        <section class="card">
+            <h2>🔁 Nachhol-Klausuren (Backlog)</h2>
+            <div class="input-group">
+                <input type="text" id="retakeSubject" placeholder="Fach (z.B. Mathe I)">
+                <select id="retakeType">
+                    <option value="Klausur">Klausur</option>
+                    <option value="Mündlich">Mündlich</option>
+                    <option value="Präsentation">Präsentation</option>
+                </select>
+                <button id="addRetakeBtn">Hinzufügen</button>
+            </div>
+            <ul id="retakeList" class="list"></ul>
         </section>
 
     </div> <script type="module" src="script.js"></script>
