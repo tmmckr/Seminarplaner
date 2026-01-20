@@ -95,3 +95,62 @@ button:hover { background-color: #219150; }
 .nav-btn:hover {
     background-color: #2c3e50; /* Dunkler beim Drüberfahren */
 }
+/* --- CP Tracker Styles --- */
+.cp-row {
+    margin-bottom: 15px;
+}
+
+.cp-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+.progress-bar {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 15px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.progress-bar div {
+    height: 100%;
+    background-color: #2980b9; /* Blau für Fortschritt */
+    transition: width 0.5s ease-in-out;
+}
+
+/* Unterschiedliche Farben für die Balken */
+#barElective { background-color: #8e44ad; } /* Lila für WPM */
+#barThesis { background-color: #d35400; }   /* Orange für Bachelor */
+
+.cp-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.cp-input-group input {
+    padding: 5px;
+    width: 80px;
+    flex: none; /* Nicht strecken */
+}
+
+.cp-input-group button {
+    padding: 5px 15px;
+    font-size: 0.85em;
+}
+
+/* --- Monats-Trennlinien in den Listen --- */
+.month-header {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #7f8c8d;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
