@@ -142,6 +142,58 @@ window.deleteItem = async (collectionName, id) => {
     }
 }
 
+// --- 5. NACHHOL-KLAUSUREN LOGIK (NEU) ---
+
+// Hinzufügen
+document.getElementById('addRetakeBtn').addEventListener('click', async () => {
+    const subject = document.getElementById('retakeSubject').value;
+    const type = document.getElementById('retakeType').value;
+
+    if (!subject) return alert("Bitte ein Fach eingeben!");
+
+    // Speichern in neuer Collection "retakes"
+    await addDoc(collection(db, "retakes"), { 
+        subject: subject, 
+        type: type 
+    });
+    
+    document.getElementById('retakeSubject').value = '';
+});
+
+// Echtzeit-Anzeige
+// Wir sortieren alphabetisch nach Fach, da es kein Datum gibt
+const qRetakes = query(collection(db, "retakes"), orderBy("subject", "asc"));
+
+onSnapshot(qRetakes, (snapshot) => {
+    const list = document.getElementById('retakeList');
+    list.innerHTML = ''; // Liste leeren
+
+    if (snapshot.empty) {
+        list.innerHTML = '<li style="padding:10px; color:#888; font-style:italic;">Keine offenen Nachhol-Klausuren 🎉</li>';
+        return;
+    }
+
+    snapshot.forEach((docSnap) => {
+        const item = docSnap.data();
+        const li = document.createElement('li');
+        
+        // Hier nutzen wir die neue CSS-Klasse "retake" für Orange
+        li.className = 'list-item retake';
+        
+        li.innerHTML = `
+            <div class="item-content">
+                <strong>${item.subject}</strong>
+                <small>Typ: ${item.type} (Noch kein Termin)</small>
+            </div>
+            <button class="delete-btn" onclick="deleteItem('retakes', '${docSnap.id}')">
+                Löschen
+            </button>
+        `;
+        
+        list.appendChild(li);
+    });
+});
+
 
 // --- 4. NEUE RENDER-LOGIK MIT MONATEN ---
 
