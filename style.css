@@ -154,3 +154,9 @@ button:hover { background-color: #219150; }
     letter-spacing: 1px;
     font-weight: bold;
 }
+
+/* Style für Nachhol-Klausuren (Orange) */
+.list-item.retake {
+    border-left-color: #f39c12; /* Orange */
+    background-color: #fffaf0; /* Ganz helles Orange als Hintergrund */
+}
