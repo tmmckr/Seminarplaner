@@ -21,65 +21,88 @@ const db = getFirestore(app);
 const examList = document.getElementById('examList');
 const todoList = document.getElementById('todoList');
 
-// --- 1. CP TRACKER LOGIK (NEU) ---
+// --- 1. STUDIENFORTSCHRITT (CPs & NOTE) ---
 
-// Wir speichern alle CPs in einem einzigen Dokument: collection "stats", ID "credits"
+// Wir nutzen nun setDoc mit { merge: true }, damit wir CPs und Note unabhängig speichern können
+import { setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 const creditDocRef = doc(db, "stats", "credits");
 
-// Echtzeit-Update der Balken
+// Echtzeit-Update der Anzeige
 onSnapshot(creditDocRef, (docSnap) => {
-    let data = { compulsory: 55, elective: 10, thesis: 0 }; // Standardwerte für den Start
+    // Standardwerte, falls die Datenbank leer ist
+    let data = { compulsory: 0, elective: 0, thesis: 0, grade: 0 }; 
     
     if (docSnap.exists()) {
         data = docSnap.data();
     }
 
     // 1. Pflichtmodule (Max 173)
-    updateCPUI('Compulsory', data.compulsory, 173);
+    updateCPUI('Compulsory', data.compulsory || 0, 173);
     
     // 2. Wahlpflicht (Max 25)
-    updateCPUI('Elective', data.elective, 25);
+    updateCPUI('Elective', data.elective || 0, 25);
     
     // 3. Bachelor (Max 12)
-    updateCPUI('Thesis', data.thesis, 12);
+    updateCPUI('Thesis', data.thesis || 0, 12);
+
+    // 4. Notendurchschnitt (NEU)
+    const currentGrade = data.grade || 0;
+    // Text anzeigen (z.B. "2.3")
+    document.getElementById('gradeText').innerText = currentGrade > 0 ? currentGrade.toFixed(1) : "-,-";
+    // Input-Feld füllen (nur wenn User nicht tippt)
+    const gradeInput = document.getElementById('valGrade');
+    if(document.activeElement !== gradeInput) {
+        gradeInput.value = currentGrade > 0 ? currentGrade : '';
+    }
 });
 
-// Hilfsfunktion zum Aktualisieren der Balken und Texte
+// Hilfsfunktion für die Balken
 function updateCPUI(type, current, max) {
-    // Input Feld füllen
     const input = document.getElementById('val' + type);
-    if(document.activeElement !== input) { // Nur updaten wenn user nicht gerade tippt
+    if(document.activeElement !== input) { 
         input.value = current;
     }
-    
-    // Text updaten
     document.getElementById('cpText' + type).innerText = `${current} / ${max} CP`;
     
-    // Balken berechnen
     let percent = (current / max) * 100;
     if(percent > 100) percent = 100;
     document.getElementById('bar' + type).style.width = percent + "%";
 }
 
-// Speichern-Funktion für alle 3 Buttons
+// Speichern der CPs (nur die CPs, Note bleibt erhalten)
 async function saveCredits() {
     const compVal = Number(document.getElementById('valCompulsory').value);
     const elecVal = Number(document.getElementById('valElective').value);
     const thesVal = Number(document.getElementById('valThesis').value);
 
+    // WICHTIG: { merge: true } sorgt dafür, dass die Note nicht gelöscht wird!
     await setDoc(creditDocRef, {
         compulsory: compVal,
         elective: elecVal,
         thesis: thesVal
-    });
-    // Kleines visuelles Feedback wäre hier möglich, aber Daten updaten sich eh sofort
+    }, { merge: true });
 }
 
-// Event Listener für die CP-Buttons
+// Speichern der Note (nur die Note, CPs bleiben erhalten)
+async function saveGrade() {
+    let gradeVal = parseFloat(document.getElementById('valGrade').value.replace(',', '.')); // Komma zu Punkt
+
+    if (isNaN(gradeVal) || gradeVal < 1.0 || gradeVal > 6.0) {
+        return alert("Bitte eine gültige Note eingeben (z.B. 2.3)");
+    }
+
+    // WICHTIG: { merge: true } sorgt dafür, dass die CPs nicht gelöscht werden!
+    await setDoc(creditDocRef, {
+        grade: gradeVal
+    }, { merge: true });
+}
+
+// Listener
 document.getElementById('saveCpBtn').addEventListener('click', saveCredits);
 document.getElementById('saveCpBtn2').addEventListener('click', saveCredits);
 document.getElementById('saveCpBtn3').addEventListener('click', saveCredits);
-
+document.getElementById('saveGradeBtn').addEventListener('click', saveGrade); // NEU
 
 // --- 2. KLAUSUREN LOGIK ---
 
