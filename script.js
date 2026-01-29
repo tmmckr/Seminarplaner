@@ -3,6 +3,7 @@ import {
     getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, setDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+
 // --- DEINE FIREBASE CONFIG HIER EINFÜGEN ---
 const firebaseConfig = {
   apiKey: "AIzaSyDhHEbyzIEour2a4TDkaU1LKCwaNLomTU4",
@@ -20,44 +21,35 @@ const db = getFirestore(app);
 // Referenzen
 const examList = document.getElementById('examList');
 const todoList = document.getElementById('todoList');
+const retakeList = document.getElementById('retakeList');
+
 
 // --- 1. STUDIENFORTSCHRITT (CPs & NOTE) ---
-
-// Wir nutzen nun setDoc mit { merge: true }, damit wir CPs und Note unabhängig speichern können
-import { setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const creditDocRef = doc(db, "stats", "credits");
 
 // Echtzeit-Update der Anzeige
 onSnapshot(creditDocRef, (docSnap) => {
-    // Standardwerte, falls die Datenbank leer ist
     let data = { compulsory: 0, elective: 0, thesis: 0, grade: 0 }; 
     
     if (docSnap.exists()) {
         data = docSnap.data();
     }
 
-    // 1. Pflichtmodule (Max 173)
     updateCPUI('Compulsory', data.compulsory || 0, 173);
-    
-    // 2. Wahlpflicht (Max 25)
     updateCPUI('Elective', data.elective || 0, 25);
-    
-    // 3. Bachelor (Max 12)
     updateCPUI('Thesis', data.thesis || 0, 12);
 
-    // 4. Notendurchschnitt (NEU)
+    // Notendurchschnitt
     const currentGrade = data.grade || 0;
-    // Text anzeigen (z.B. "2.3")
     document.getElementById('gradeText').innerText = currentGrade > 0 ? currentGrade.toFixed(1) : "-,-";
-    // Input-Feld füllen (nur wenn User nicht tippt)
+    
     const gradeInput = document.getElementById('valGrade');
     if(document.activeElement !== gradeInput) {
         gradeInput.value = currentGrade > 0 ? currentGrade : '';
     }
 });
 
-// Hilfsfunktion für die Balken
 function updateCPUI(type, current, max) {
     const input = document.getElementById('val' + type);
     if(document.activeElement !== input) { 
@@ -70,13 +62,12 @@ function updateCPUI(type, current, max) {
     document.getElementById('bar' + type).style.width = percent + "%";
 }
 
-// Speichern der CPs (nur die CPs, Note bleibt erhalten)
+// Speichern CPs
 async function saveCredits() {
     const compVal = Number(document.getElementById('valCompulsory').value);
     const elecVal = Number(document.getElementById('valElective').value);
     const thesVal = Number(document.getElementById('valThesis').value);
 
-    // WICHTIG: { merge: true } sorgt dafür, dass die Note nicht gelöscht wird!
     await setDoc(creditDocRef, {
         compulsory: compVal,
         elective: elecVal,
@@ -84,25 +75,19 @@ async function saveCredits() {
     }, { merge: true });
 }
 
-// Speichern der Note (nur die Note, CPs bleiben erhalten)
+// Speichern Note
 async function saveGrade() {
-    let gradeVal = parseFloat(document.getElementById('valGrade').value.replace(',', '.')); // Komma zu Punkt
+    let gradeVal = parseFloat(document.getElementById('valGrade').value.replace(',', '.'));
+    if (isNaN(gradeVal) || gradeVal < 1.0 || gradeVal > 6.0) return alert("Ungültige Note!");
 
-    if (isNaN(gradeVal) || gradeVal < 1.0 || gradeVal > 6.0) {
-        return alert("Bitte eine gültige Note eingeben (z.B. 2.3)");
-    }
-
-    // WICHTIG: { merge: true } sorgt dafür, dass die CPs nicht gelöscht werden!
-    await setDoc(creditDocRef, {
-        grade: gradeVal
-    }, { merge: true });
+    await setDoc(creditDocRef, { grade: gradeVal }, { merge: true });
 }
 
-// Listener
 document.getElementById('saveCpBtn').addEventListener('click', saveCredits);
 document.getElementById('saveCpBtn2').addEventListener('click', saveCredits);
 document.getElementById('saveCpBtn3').addEventListener('click', saveCredits);
-document.getElementById('saveGradeBtn').addEventListener('click', saveGrade); // NEU
+document.getElementById('saveGradeBtn').addEventListener('click', saveGrade);
+
 
 // --- 2. KLAUSUREN LOGIK ---
 
@@ -115,17 +100,19 @@ document.getElementById('addExamBtn').addEventListener('click', async () => {
 
     if (!subject || !date) return alert("Bitte Fach und Datum eingeben!");
 
-    await addDoc(collection(db, "exams"), { subject, type, date, time, room });
-    
-    document.getElementById('examSubject').value = '';
-    document.getElementById('examDate').value = '';
-    document.getElementById('examTime').value = '';
-    document.getElementById('examRoom').value = '';
+    try {
+        await addDoc(collection(db, "exams"), { subject, type, date, time, room });
+        document.getElementById('examSubject').value = '';
+        document.getElementById('examDate').value = '';
+        document.getElementById('examTime').value = '';
+        document.getElementById('examRoom').value = '';
+    } catch(e) {
+        console.error(e);
+        alert("Fehler beim Speichern (Rechte prüfen!)");
+    }
 });
 
-// Echtzeit-Anzeige Klausuren
 const qExams = query(collection(db, "exams"), orderBy("date", "asc"));
-
 onSnapshot(qExams, (snapshot) => {
     const items = [];
     snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data(), isExam: true }));
@@ -149,152 +136,92 @@ document.getElementById('addTodoBtn').addEventListener('click', async () => {
     document.getElementById('todoDate').value = '';
 });
 
-// Echtzeit-Anzeige To-Dos
 const qTodos = query(collection(db, "todos"), orderBy("date", "asc"));
-
 onSnapshot(qTodos, (snapshot) => {
     const items = [];
     snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data(), isExam: false }));
     renderListWithGroups(todoList, items);
 });
 
-// Löschen Funktion (generisch für beide)
-window.deleteItem = async (collectionName, id) => {
-    if(confirm("Eintrag wirklich löschen?")) {
-        await deleteDoc(doc(db, collectionName, id));
-    }
-}
 
-// --- 5. NACHHOL-KLAUSUREN LOGIK (Backlog) ---
+// --- 4. BACKLOG (NACHHOL-KLAUSUREN) LOGIK ---
 
 const addRetakeBtn = document.getElementById('addRetakeBtn');
-
-if (addRetakeBtn) { // Sicherheitscheck: Gibt es den Button überhaupt?
+if (addRetakeBtn) {
     addRetakeBtn.addEventListener('click', async () => {
         const subject = document.getElementById('retakeSubject').value;
         const type = document.getElementById('retakeType').value;
+        if (!subject) return alert("Bitte Fach eingeben!");
 
-        if (!subject) return alert("Bitte ein Fach eingeben!");
-
-        try {
-            // Versuch, in die Datenbank zu schreiben
-            await addDoc(collection(db, "retakes"), { 
-                subject: subject, 
-                type: type 
-            });
-            
-            // Wenn es geklappt hat: Feld leeren
-            document.getElementById('retakeSubject').value = '';
-            console.log("Erfolgreich gespeichert!"); // Nur für die Konsole
-
-        } catch (error) {
-            // Wenn ein Fehler passiert:
-            console.error("Fehler beim Speichern:", error);
-            alert("Fehler: " + error.message); 
-            // Falls hier "permission-denied" steht, liegt es an den Regeln!
-        }
+        await addDoc(collection(db, "retakes"), { subject, type });
+        document.getElementById('retakeSubject').value = '';
     });
-} else {
-    console.error("ACHTUNG: Der Button 'addRetakeBtn' wurde im HTML nicht gefunden!");
 }
 
-// Echtzeit-Anzeige
 const qRetakes = query(collection(db, "retakes"), orderBy("subject", "asc"));
-
 onSnapshot(qRetakes, (snapshot) => {
-    const list = document.getElementById('retakeList');
-    if (!list) return; // Abbruch, falls Liste nicht im HTML ist
-
-    list.innerHTML = ''; 
-
+    retakeList.innerHTML = '';
     if (snapshot.empty) {
-        list.innerHTML = '<li style="padding:10px; color:#888; font-style:italic;">Keine offenen Nachhol-Klausuren 🎉</li>';
+        retakeList.innerHTML = '<li style="padding:10px; color:#888;">Keine offenen Nachhol-Klausuren 🎉</li>';
         return;
     }
-
     snapshot.forEach((docSnap) => {
         const item = docSnap.data();
         const li = document.createElement('li');
-        li.className = 'list-item retake'; // Orange Klasse
-        
+        li.className = 'list-item retake';
         li.innerHTML = `
-            <div class="item-content">
-                <strong>${item.subject}</strong>
-                <small>Typ: ${item.type} (Noch kein Termin)</small>
-            </div>
-            <button class="delete-btn" onclick="deleteItem('retakes', '${docSnap.id}')">
-                Löschen
-            </button>
+            <div class="item-content"><strong>${item.subject}</strong><small>${item.type}</small></div>
+            <button class="delete-btn" onclick="deleteItem('retakes', '${docSnap.id}')">Löschen</button>
         `;
-        list.appendChild(li);
+        retakeList.appendChild(li);
     });
 });
 
 
-// --- 4. NEUE RENDER-LOGIK MIT MONATEN ---
+// --- HELPER FUNKTIONEN ---
 
+// Löschen (Global verfügbar machen)
+window.deleteItem = async (collectionName, id) => {
+    if(confirm("Wirklich löschen?")) {
+        await deleteDoc(doc(db, collectionName, id));
+    }
+}
+
+// Render-Funktion mit Monats-Überschriften
 function renderListWithGroups(container, items) {
     container.innerHTML = '';
-    
     let lastMonthYear = '';
 
     items.forEach(item => {
         const dateObj = new Date(item.date);
-        
-        // Formatieren: "Januar 2026"
         const currentMonthYear = dateObj.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
         const dateStr = dateObj.toLocaleDateString('de-DE');
 
-        // PRÜFUNG: Ist das ein neuer Monat?
         if (currentMonthYear !== lastMonthYear) {
-            // Neue Überschrift einfügen
             const header = document.createElement('h3');
             header.className = 'month-header';
             header.textContent = currentMonthYear;
             container.appendChild(header);
-            
             lastMonthYear = currentMonthYear;
         }
 
-        // Das eigentliche Item (wie vorher)
         const li = document.createElement('li');
         li.className = 'list-item';
-
         let content = '';
         let deleteCall = '';
 
         if (item.isExam) {
-            // Layout für Klausur
             let details = `Datum: ${dateStr}`;
             if (item.time) details += ` • 🕒 ${item.time}`;
             if (item.room) details += ` • 📍 ${item.room}`;
-            
-            content = `
-                <div class="item-content">
-                    <strong>${item.subject} (${item.type})</strong>
-                    <small>${details}</small>
-                </div>
-            `;
+            content = `<div class="item-content"><strong>${item.subject} (${item.type})</strong><small>${details}</small></div>`;
             deleteCall = `deleteItem('exams', '${item.id}')`;
         } else {
-            // Layout für To-Do
-            content = `
-                <div class="item-content">
-                    <strong>${item.task}</strong>
-                    <small>Bis: ${dateStr}</small>
-                    ${item.note ? `<span class="item-note">📝 ${item.note}</span>` : ''}
-                </div>
-            `;
+            content = `<div class="item-content"><strong>${item.task}</strong><small>Bis: ${dateStr}</small>${item.note ? `<span class="item-note">📝 ${item.note}</span>` : ''}</div>`;
             deleteCall = `deleteItem('todos', '${item.id}')`;
         }
 
-        li.innerHTML = `
-            ${content}
-            <button class="delete-btn" onclick="${deleteCall}">
-                ${item.isExam ? 'Löschen' : 'Erledigt'}
-            </button>
-        `;
-        
+        li.innerHTML = `${content}<button class="delete-btn" onclick="${deleteCall}">${item.isExam ? 'Löschen' : 'Erledigt'}</button>`;
         container.appendChild(li);
     });
 }
